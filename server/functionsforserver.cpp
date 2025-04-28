@@ -21,11 +21,11 @@ QByteArray parsing(QString data_from_client)
     data_from_client_list.pop_front();
 
     if (nameOfFunc == "auth") {
-        if (data_from_client_list.size() < 2)
+        if (data_from_client_list.size() < 1)
             return "Error: Not enough parameters for auth\n";
         return auth(data_from_client_list.at(0), data_from_client_list.at(1));
     } else if (nameOfFunc == "reg") {
-        if (data_from_client_list.size() < 3)
+        if (data_from_client_list.size() < 2)
             return "Error: Not enough parameters for reg\n";
         return reg(data_from_client_list.at(0), data_from_client_list.at(1), data_from_client_list.at(2));
     } else if (nameOfFunc == "task1") {
@@ -89,6 +89,9 @@ QByteArray auth(QString log, QString pass)
 
 QByteArray reg(QString log, QString pass, QString mail)
 {
+    if (log.trimmed().isEmpty() || pass.trimmed().isEmpty() || mail.trimmed().isEmpty()) {
+        return "Error: Login, mail and password must not be empty\n";
+    }
     DataBase& dbInstance = DataBase::getInstance();
     QStringList insertQuery;
     insertQuery << "INSERT INTO users (login, password, email) VALUES (:login, :password, :email)"
@@ -131,13 +134,30 @@ QByteArray zwspProc(QByteArray unformattedText) {
     return result.toUtf8();
 }
 
+// QByteArray task1(const QString &text)
+// {
+//     incrementStat();
+//     std::string key = "0123456789abcdef"; // Example key
+//     AES aes(key);
+//     std::string encryptedText = aes.encrypt(text.toStdString());
+//     //return zwspProc(QByteArray::fromStdString(encryptedText));
+//     return QByteArray::fromStdString(encryptedText);
+// }
+
 QByteArray task1(const QString &text)
 {
     incrementStat();
-    std::string key = "0123456789abcdef"; // Example key
+
+    std::string key = "0123456789abcdef"; // 16 символов = 128 бит
     AES aes(key);
-    std::string encryptedText = aes.encrypt(text.toStdString());
-    return zwspProc(QByteArray::fromStdString(encryptedText));
+
+    std::string encryptedBase64 = aes.encrypt(text.toStdString());
+    std::string decryptedText = aes.decrypt(encryptedBase64);
+
+    qDebug() << "Encrypted Base64:" << QString::fromStdString(encryptedBase64);
+    qDebug() << "Decrypted:" << QString::fromStdString(decryptedText);
+
+    return QByteArray::fromStdString(encryptedBase64);
 }
 
 QByteArray task2(QString text)
@@ -161,6 +181,10 @@ QByteArray task2(QString text)
 QByteArray task3(QString func, QString left, QString right, QString epsilon, QString maxIter)
 {
     incrementStat();
+    // if (func.trimmed().isEmpty() || left.trimmed().isEmpty() || right.trimmed().isEmpty() ||
+    //     epsilon.trimmed().isEmpty() || maxIter.trimmed().isEmpty()) {
+    //     return "Error: One or more input fields are empty.\n";
+    // }
     double left_val = left.toDouble();
     double right_val = right.toDouble();
     double epsilon_val = epsilon.toDouble();
@@ -188,12 +212,29 @@ QByteArray task4(QString text)
 
     Graph g;
     for (const QString& e : edges) {
-        QStringList nodes = e.split('*');
+        // Разделяем сначала по '=' (если есть вес)
+        QStringList edgeAndWeight = e.split('=');
+        QString edgePart = edgeAndWeight[0];
+        int weight = 1; // по умолчанию вес 1
+
+        if (edgeAndWeight.size() == 2) {
+            bool ok = false;
+            int parsedWeight = edgeAndWeight[1].toInt(&ok);
+            if (ok) {
+                weight = parsedWeight;
+            }
+        }
+
+        QStringList nodes = edgePart.split('*');
         if (nodes.size() != 2) continue;
 
-        int from = nodes[0].toInt();
-        int to = nodes[1].toInt();
-        g.addEdge(from, to);  // по умолчанию вес = 1
+        bool okFrom = false, okTo = false;
+        int from = nodes[0].toInt(&okFrom);
+        int to = nodes[1].toInt(&okTo);
+
+        if (okFrom && okTo) {
+            g.addEdge(from, to, weight);
+        }
     }
 
     QString resultPath = g.dijkstra(start, end);

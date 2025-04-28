@@ -11,7 +11,7 @@ class SHA512
     typedef unsigned int uint32;            // 32-битное беззнаковое целое
     typedef unsigned long long uint64;      // 64-битное беззнаковое целое
 
-        // Константы для хэширования SHA-512
+    // Константы для хэширования SHA-512
     const static uint64 sha512_k[];         // Константы для раундов
     static const unsigned int SHA384_512_BLOCK_SIZE = (1024 / 8); // Размер блока
 
@@ -21,7 +21,7 @@ class SHA512
     void update(const unsigned char *message, unsigned int len); // Обновление хэша данными
     void final(unsigned char *digest);      // Завершение хэширования и получение окончательного хэша
 
-           // Размер хэша в байтах
+    // Размер хэша в байтах
     static const unsigned int DIGEST_SIZE = (512 / 8);
 
   protected:

@@ -4,18 +4,30 @@
 
 Graph::Graph() {}
 
+/**
+ * @brief Добавляет ребро между двумя вершинами в графе
+ * @param from Вершина-источник
+ * @param to Вершина-назначение
+ * @param weight Вес ребра
+ */
 void Graph::addEdge(int from, int to, int weight) {
     adjList[from].append(qMakePair(to, weight));
-    // Раскомментировать нижнюю строку, если хотим неориентированный
+    // Раскомментировать нижнюю строку, если хотим неориентированный граф
     adjList[to].append(qMakePair(from, weight));
 }
 
+/**
+ * @brief Реализация алгоритма Дейкстры для поиска кратчайшего пути
+ * @param start Начальная вершина
+ * @param end Конечная вершина
+ * @return Строка с путем в формате "start -> ... -> end" или сообщение "No path found"
+ */
 QString Graph::dijkstra(int start, int end) {
-    QMap<int, int> dist;
-    QMap<int, int> prev;
-    QSet<int> allNodes;
+    QMap<int, int> dist; ///< Расстояние от старта до вершины
+    QMap<int, int> prev; ///< Предыдущая вершина на кратчайшем пути
+    QSet<int> allNodes; ///< Множество всех вершин
 
-           // Добавим вершины из списка рёбер
+    // Добавим вершины из списка рёбер
     for (auto from : adjList.keys()) {
         allNodes.insert(from);
         for (const auto& pair : adjList[from]) {
@@ -23,7 +35,6 @@ QString Graph::dijkstra(int start, int end) {
         }
     }
 
-           // Обязательно добавить start и end, даже если они не в рёбрах
     allNodes.insert(start);
     allNodes.insert(end);
 
@@ -45,7 +56,6 @@ QString Graph::dijkstra(int start, int end) {
             }
         }
 
-               // 🔒 Нет доступных узлов — выйти
         if (minNode == -1 || dist[minNode] == std::numeric_limits<int>::max()) {
             break;
         }
@@ -65,10 +75,11 @@ QString Graph::dijkstra(int start, int end) {
     }
 
     if (dist[end] == std::numeric_limits<int>::max()) {
-        return "No path found";
+        // Теперь возвращаем сообщение с номерами вершин
+        return QString("No path from %1 to %2").arg(start).arg(end);
     }
 
-           // Восстановим путь
+    // Восстановим путь
     QStack<int> path;
     int current = end;
     while (current != -1) {
@@ -84,6 +95,8 @@ QString Graph::dijkstra(int start, int end) {
         }
     }
 
+    // Добавляем длину пути
+    result += QString(" (длина %1)").arg(dist[end]);
+
     return result;
 }
-

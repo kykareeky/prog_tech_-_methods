@@ -11,7 +11,7 @@ TcpServer::TcpServer(QObject *parent) : QObject(parent)
 	 /* signal-slot binding
                 mTcpServer - signal src;
                 &QTcpServer::newConnection - signal type;
-                his - dst;
+                this - dst;
                 MyTcpServer::slotNewConnection - slot (action)*/
     connect(mTcpServer, &QTcpServer::newConnection,
             this, &TcpServer::slotNewConnection);
@@ -32,14 +32,14 @@ TcpServer::~TcpServer()
 
 void TcpServer::slotNewConnection()
 {
-	// QTcpSocket for a new client
+    // QTcpSocket for a new client
     QTcpSocket *clientSocket = mTcpServer->nextPendingConnection(); 
     mTcpSockets << clientSocket; // add to connected clients list
 
-	// ready read signal -> start reading slot 
+    // ready read signal -> start reading slot
     connect(clientSocket, &QTcpSocket::readyRead, this, &TcpServer::slotServerRead);
 
-	// disconnected signal -> start disconected client slot 
+    // disconnected signal -> start disconected client slot
     connect(clientSocket, &QTcpSocket::disconnected, this, &TcpServer::slotClientDisconnected);
     clientSocket->write("Hello Friend\r\n I am echo server\r\n");
 }

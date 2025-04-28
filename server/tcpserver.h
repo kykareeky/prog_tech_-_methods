@@ -57,8 +57,8 @@ private slots:
     void slotClientDisconnected();
 
 private:
-    QTcpServer *mTcpServer; ///< Pointer to QTcpServer object for server operating. */
-    QList<QTcpSocket*> mTcpSockets; ///< List of sockets for connected clients operating. */
+    QTcpServer *mTcpServer; /**< Pointer to QTcpServer object for server operating. */
+    QList<QTcpSocket*> mTcpSockets; /**< List of sockets for connected clients operating. */
 };
 
 #endif // TCPSERVER_H
