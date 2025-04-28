@@ -181,10 +181,10 @@ QByteArray task2(QString text)
 QByteArray task3(QString func, QString left, QString right, QString epsilon, QString maxIter)
 {
     incrementStat();
-    // if (func.trimmed().isEmpty() || left.trimmed().isEmpty() || right.trimmed().isEmpty() ||
-    //     epsilon.trimmed().isEmpty() || maxIter.trimmed().isEmpty()) {
-    //     return "Error: One or more input fields are empty.\n";
-    // }
+    if (func.trimmed().isEmpty() || left.trimmed().isEmpty() || right.trimmed().isEmpty() ||
+        epsilon.trimmed().isEmpty() || maxIter.trimmed().isEmpty()) {
+        return "Error: One or more input fields are empty.\n";
+    }
     double left_val = left.toDouble();
     double right_val = right.toDouble();
     double epsilon_val = epsilon.toDouble();
